@@ -1,0 +1,36 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual Studio 2010
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SocketEvent.NET", "SocketEvent.NET\SocketEvent.NET.csproj", "{0FB9A193-CF7B-4F8C-96F9-6D3295E01F6B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SocketEventTest", "SocketEventTest\SocketEventTest.csproj", "{57E7D2D1-D789-4CE6-BA53-7CDCF9D24BBD}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{4A369507-F192-42F4-A5C3-773E32C70085}"
+	ProjectSection(SolutionItems) = preProject
+		Local.testsettings = Local.testsettings
+		SocketEvent.NET.vsmdi = SocketEvent.NET.vsmdi
+		TraceAndTestImpact.testsettings = TraceAndTestImpact.testsettings
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(TestCaseManagementSettings) = postSolution
+		CategoryFile = SocketEvent.NET.vsmdi
+	EndGlobalSection
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{0FB9A193-CF7B-4F8C-96F9-6D3295E01F6B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0FB9A193-CF7B-4F8C-96F9-6D3295E01F6B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0FB9A193-CF7B-4F8C-96F9-6D3295E01F6B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0FB9A193-CF7B-4F8C-96F9-6D3295E01F6B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{57E7D2D1-D789-4CE6-BA53-7CDCF9D24BBD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{57E7D2D1-D789-4CE6-BA53-7CDCF9D24BBD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{57E7D2D1-D789-4CE6-BA53-7CDCF9D24BBD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{57E7D2D1-D789-4CE6-BA53-7CDCF9D24BBD}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
