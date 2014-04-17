@@ -2,6 +2,8 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using SocketEvent.Dto;
+using SocketEvent;
+using System.Threading;
 
 namespace SocketEventTest
 {
@@ -72,9 +74,9 @@ namespace SocketEventTest
         public void ConnectTest()
         {
             string url = "http://192.168.122.1:2900";
-            SocketEventClient actual;
-            actual = SocketEventClient.Connect(url);
-            Assert.IsNotNull(actual);
+            ISocketEventClient client;
+            client = SocketEventClientFactory.CreateInstance(url);
+            Assert.IsNotNull(client);
         }
 
         /// <summary>
@@ -84,10 +86,40 @@ namespace SocketEventTest
         public void SubscribeTest()
         {
             string url = "http://192.168.122.1:2900";
-            SocketEventClient client;
-            client = SocketEventClient.Connect(url);
+            ISocketEventClient client;
+            client = SocketEventClientFactory.CreateInstance(url);
             string eventName = "TestEvent";
-            client.Subscribe(eventName);
+            IServerResponse response = null;
+            Semaphore s = new Semaphore(0, 1);
+            client.Subscribe(eventName, (data) =>
+            {
+                response = data;
+                s.Release();
+            });
+            s.WaitOne(3000);
+
+            Assert.AreEqual(RequestResult.Success, response.Status);
+            Assert.AreEqual(ClientState.Connected, client.State);
+        }
+
+        [TestMethod()]
+        public void EnqueueTest()
+        {
+            string url = "http://192.168.122.1:2900";
+            ISocketEventClient client;
+            client = SocketEventClientFactory.CreateInstance(url);
+            string eventName = "TestEvent";
+            IServerResponse response = null;
+            Semaphore s = new Semaphore(0, 1);
+
+            client.Enqueue(eventName, (data) =>
+                {
+                    response = data;
+                    s.Release();
+                });
+            s.WaitOne(3000);
+
+            Assert.AreEqual(RequestResult.Success, response.Status);
             Assert.AreEqual(ClientState.Connected, client.State);
         }
     }

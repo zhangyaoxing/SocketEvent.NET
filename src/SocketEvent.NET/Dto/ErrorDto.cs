@@ -2,15 +2,19 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Newtonsoft.Json;
 
 namespace SocketEvent.Dto
 {
     public class ErrorDto
     {
+        [JsonProperty("name")]
         public string Name { get; set; }
 
+        [JsonProperty("message")]
         public string Message { get; set; }
 
+        [JsonProperty("stack")]
         public string Stack { get; set; }
 
         public override string ToString()

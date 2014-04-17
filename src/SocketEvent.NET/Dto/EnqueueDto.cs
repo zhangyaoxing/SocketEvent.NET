@@ -6,15 +6,21 @@ using Newtonsoft.Json;
 
 namespace SocketEvent.Dto
 {
-    /// <summary>
-    /// DTO used when subscribing an event.
-    /// </summary>
-    class SubscribeDto : BaseCommunicateDto
+    class EnqueueDto : BaseCommunicateDto
     {
         /// <summary>
         /// Event to subscribe.
         /// </summary>
         [JsonProperty("event")]
         public string Event { get; set; }
+
+        [JsonProperty("retryLimit")]
+        public int RetryLimit { get; set; }
+
+        [JsonProperty("timeout")]
+        public int Timeout { get; set; }
+
+        [JsonProperty("args")]
+        public dynamic Args { get; set; }
     }
 }

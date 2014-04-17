@@ -32,6 +32,9 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="AutoMapper">
+      <HintPath>..\..\lib\AutoMapper.dll</HintPath>
+    </Reference>
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="Newtonsoft.Json">
       <HintPath>..\..\lib\Newtonsoft.Json.dll</HintPath>
@@ -47,18 +50,23 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Dto\ClientState.cs" />
+    <Compile Include="ClientState.cs" />
+    <Compile Include="Dto\BaseCommunicateDto.cs" />
+    <Compile Include="Dto\EnqueueDto.cs" />
     <Compile Include="Dto\ErrorDto.cs" />
-    <Compile Include="Dto\RequestResult.cs" />
-    <Compile Include="Dto\RequestResultDto.cs" />
+    <Compile Include="IServerError.cs" />
+    <Compile Include="RequestResult.cs" />
+    <Compile Include="Dto\ServerResponseDto.cs" />
     <Compile Include="Dto\SubscribeDto.cs" />
-    <Compile Include="Dto\SubscribeResponseDto.cs" />
-    <Compile Include="Exceptions\ServerException.cs" />
+    <Compile Include="Impl\ServerResponse.cs" />
+    <Compile Include="IServerResponse.cs" />
+    <Compile Include="ISocketEventClient.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="SocketEventClient.cs" />
+    <Compile Include="Impl\SocketEventClient.cs" />
+    <Compile Include="SocketEventClientFactory.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Impl\" />
+    <Folder Include="Error\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
