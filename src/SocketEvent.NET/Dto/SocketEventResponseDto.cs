@@ -6,9 +6,9 @@ using Newtonsoft.Json;
 
 namespace SocketEvent.Dto
 {
-    class ServerResponseDto
+    class SocketEventResponseDto
     {
-        public ServerResponseDto()
+        public SocketEventResponseDto()
         {
         }
 

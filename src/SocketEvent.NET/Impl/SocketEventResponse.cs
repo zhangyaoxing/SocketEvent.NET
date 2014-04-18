@@ -5,7 +5,7 @@ using System.Text;
 
 namespace SocketEvent.Impl
 {
-    class ServerResponse: IServerResponse
+    class SocketEventResponse: ISocketEventResponse
     {
         public string RequestId { get; set; }
 

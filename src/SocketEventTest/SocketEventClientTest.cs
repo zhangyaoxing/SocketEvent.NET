@@ -7,8 +7,8 @@ using System.Threading;
 
 namespace SocketEventTest
 {
-    
-    
+
+
     /// <summary>
     ///This is a test class for SocketEventClientTest and is intended
     ///to contain all SocketEventClientTest Unit Tests
@@ -16,7 +16,7 @@ namespace SocketEventTest
     [TestClass()]
     public class SocketEventClientTest
     {
-
+        public const string URL = "http://192.168.122.1:2900";
 
         private TestContext testContextInstance;
 
@@ -73,9 +73,8 @@ namespace SocketEventTest
         [TestMethod()]
         public void ConnectTest()
         {
-            string url = "http://192.168.122.1:2900";
             ISocketEventClient client;
-            client = SocketEventClientFactory.CreateInstance(url);
+            client = SocketEventClientFactory.CreateInstance(URL);
             Assert.IsNotNull(client);
         }
 
@@ -85,31 +84,40 @@ namespace SocketEventTest
         [TestMethod()]
         public void SubscribeTest()
         {
-            string url = "http://192.168.122.1:2900";
             ISocketEventClient client;
-            client = SocketEventClientFactory.CreateInstance(url);
+            client = SocketEventClientFactory.CreateInstance(URL);
+            client.ClientId = "SubscriberID";
             string eventName = "TestEvent";
-            IServerResponse response = null;
+            ISocketEventResponse serverResponse = null;
+            ISocketEventRequest serverRequest = null;
             Semaphore s = new Semaphore(0, 1);
-            client.Subscribe(eventName, (data) =>
-            {
-                response = data;
-                s.Release();
-            });
-            s.WaitOne(3000);
+            client.Subscribe(eventName,
+                new Func<ISocketEventRequest,RequestResult>((request) =>
+                {
+                    serverRequest = request;
+                    s.Release();
+                    return RequestResult.Success;
+                }),
+                (response) =>
+                {
+                    serverResponse = response;
+                });
+            client.Enqueue(eventName);
+            s.WaitOne();
 
-            Assert.AreEqual(RequestResult.Success, response.Status);
+            Assert.AreEqual(RequestResult.Success, serverResponse.Status);
             Assert.AreEqual(ClientState.Connected, client.State);
+            Assert.AreEqual(eventName, serverRequest.EventName);
+            Assert.IsNotNull(serverRequest.RequestId);
         }
 
         [TestMethod()]
         public void EnqueueTest()
         {
-            string url = "http://192.168.122.1:2900";
             ISocketEventClient client;
-            client = SocketEventClientFactory.CreateInstance(url);
+            client = SocketEventClientFactory.CreateInstance(URL);
             string eventName = "TestEvent";
-            IServerResponse response = null;
+            ISocketEventResponse response = null;
             Semaphore s = new Semaphore(0, 1);
 
             client.Enqueue(eventName, (data) =>

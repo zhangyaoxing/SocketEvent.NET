@@ -14,8 +14,8 @@ namespace SocketEvent.Dto
         [JsonProperty("event")]
         public string Event { get; set; }
 
-        [JsonProperty("retryLimit")]
-        public int RetryLimit { get; set; }
+        [JsonProperty("tryTimes")]
+        public int TryTimes { get; set; }
 
         [JsonProperty("timeout")]
         public int Timeout { get; set; }

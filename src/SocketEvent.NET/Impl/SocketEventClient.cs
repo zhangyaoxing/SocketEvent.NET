@@ -37,38 +37,57 @@ namespace SocketEvent.Impl
 
         public ClientState State { get; set; }
 
-        public void Subscribe(string eventName, Action<IServerResponse> callback = null)
+        public void Subscribe(string eventName, Func<ISocketEventRequest, RequestResult> eventCallback, Action<ISocketEventResponse> subscribeReadyCallback = null)
         {
-            var dto = new SubscribeDto()
+            this.socket.On(eventName, (msg) =>
+            {
+                var dto = JsonConvert.DeserializeObject<SocketEventRequestDto>(msg.Json.Args[0].ToString());
+                var request = Mapper.Map<SocketEventRequestDto, SocketEventRequest>(dto);
+                var result = eventCallback(request);
+                
+                // Simulate a ack callback because SocketIO4Net doesn't provide one by default.
+                var msgText = JsonConvert.SerializeObject(new SocketEventResponseDto() {
+                    RequestId = request.RequestId,
+                    Status = result.ToString()
+                });
+                var ack = new AckMessage()
+                {
+                    AckId = msg.AckId,
+                    Endpoint = msg.Endpoint,
+                    MessageText = msgText
+                };
+                this.socket.Send(ack);
+            });
+            var subscribeDto = new SubscribeDto()
             {
                 Event = eventName,
                 SenderId = this.ClientId
             };
-            this.socket.Emit(SUBSCRIBE, dto, string.Empty, (data) =>
+            this.socket.Emit(SUBSCRIBE, subscribeDto, string.Empty, (data) =>
             {
                 var json = data as JsonEncodedEventMessage;
-                var result = JsonConvert.DeserializeObject<ServerResponseDto>(json.Args[0]);
-                var response = Mapper.Map<ServerResponseDto, ServerResponse>(result);
+                var result = JsonConvert.DeserializeObject<SocketEventResponseDto>(json.Args[0]);
+                var response = Mapper.Map<SocketEventResponseDto, SocketEventResponse>(result);
 
-                if (callback != null)
+                if (subscribeReadyCallback != null)
                 {
-                    callback(response);
+                    subscribeReadyCallback(response);
                 }
             });
         }
 
-        public void Unsubscribe(string eventName, Action<IServerResponse> callback)
+        public void Unsubscribe(string eventName, Action<ISocketEventResponse> callback)
         {
             throw new NotImplementedException();
         }
 
-        public void Enqueue(string eventName, int retryLimit = 0, int timeout = 60, dynamic args = null, Action<IServerResponse> callback = null)
+        public void Enqueue(string eventName, int tryTimes = 1, int timeout = 60, dynamic args = null, Action<ISocketEventResponse> callback = null)
         {
             var dto = new EnqueueDto()
             {
                 Event = eventName,
                 SenderId = this.ClientId,
-                RetryLimit = retryLimit,
+                TryTimes = tryTimes == 0 ? 1 : tryTimes,
                 Timeout = timeout,
                 Args = args
             };
@@ -76,8 +95,8 @@ namespace SocketEvent.Impl
             this.socket.Emit(ENQUEUE, dto, string.Empty, (data) =>
                 {
                     var json = data as JsonEncodedEventMessage;
-                    var result = JsonConvert.DeserializeObject<ServerResponseDto>(json.Args[0]);
-                    var response = Mapper.Map<ServerResponseDto, ServerResponse>(result);
+                    var result = JsonConvert.DeserializeObject<SocketEventResponseDto>(json.Args[0]);
+                    var response = Mapper.Map<SocketEventResponseDto, SocketEventResponse>(result);
 
                     if (callback != null)
                     {
@@ -86,14 +105,9 @@ namespace SocketEvent.Impl
                 });
         }
 
-        public void Enqueue(string eventName, Action<IServerResponse> callback = null)
+        public void Enqueue(string eventName, Action<ISocketEventResponse> callback)
         {
             this.Enqueue(eventName, 0, 60, null, callback);
-        }
-
-        public void RegisterEventListener<TResult>(string eventName, Action<TResult> eventHandler)
-        {
-            throw new NotImplementedException();
         }
 
         private void ChangeState()

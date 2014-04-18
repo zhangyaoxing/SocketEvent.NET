@@ -31,8 +31,10 @@ namespace SocketEvent
                         return src.ToString().ToUpper();
                     }));
 
-            Mapper.CreateMap<ServerResponse, ServerResponseDto>();
-            Mapper.CreateMap<ServerResponseDto, ServerResponse>();
+            Mapper.CreateMap<SocketEventResponse, SocketEventResponseDto>();
+            Mapper.CreateMap<SocketEventResponseDto, SocketEventResponse>();
+            Mapper.CreateMap<SocketEventRequest, SocketEventRequestDto>();
+            Mapper.CreateMap<SocketEventRequestDto, SocketEventRequest>();
         }
 
         private SocketEventClientFactory()

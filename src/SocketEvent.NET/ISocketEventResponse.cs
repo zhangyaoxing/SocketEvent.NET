@@ -8,7 +8,7 @@ namespace SocketEvent
     /// <summary>
     /// This class representing a response from SocketEvent server.
     /// </summary>
-    public interface IServerResponse
+    public interface ISocketEventResponse
     {
         /// <summary>
         /// Get request ID.
