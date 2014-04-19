@@ -38,9 +38,6 @@
     <Reference Include="Newtonsoft.Json">
       <HintPath>..\..\lib\Newtonsoft.Json.dll</HintPath>
     </Reference>
-    <Reference Include="SocketIOClient">
-      <HintPath>..\..\lib\SocketIOClient.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core">
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
@@ -67,6 +64,10 @@
     <ProjectReference Include="..\SocketEvent.NET\SocketEvent.NET.csproj">
       <Project>{0FB9A193-CF7B-4F8C-96F9-6D3295E01F6B}</Project>
       <Name>SocketEvent.NET</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\SocketIO\SocketIOClient.csproj">
+      <Project>{352C9BC1-F74C-4741-A09D-7227BC60C057}</Project>
+      <Name>SocketIOClient</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />

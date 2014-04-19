@@ -20,7 +20,8 @@ namespace SocketEvent.Impl
 
         private Client socket;
 
-        public SocketEventClient(string url): this(Guid.NewGuid().ToString(), url)
+        public SocketEventClient(string url)
+            : this(Guid.NewGuid().ToString(), url)
         {
         }
 
@@ -44,16 +45,17 @@ namespace SocketEvent.Impl
                 var dto = JsonConvert.DeserializeObject<SocketEventRequestDto>(msg.Json.Args[0].ToString());
                 var request = Mapper.Map<SocketEventRequestDto, SocketEventRequest>(dto);
                 var result = eventCallback(request);
-                
+
                 // Simulate a ack callback because SocketIO4Net doesn't provide one by default.
-                var msgText = JsonConvert.SerializeObject(new SocketEventResponseDto() {
-                    RequestId = request.RequestId,
-                    Status = result.ToString()
+                var msgText = JsonConvert.SerializeObject(new object[] {
+                    new SocketEventResponseDto() {
+                        RequestId = request.RequestId,
+                        Status = result.ToString().ToUpper()
+                    }
                 });
                 var ack = new AckMessage()
                 {
                     AckId = msg.AckId,
-                    Endpoint = msg.Endpoint,
                     MessageText = msgText
                 };
                 this.socket.Send(ack);

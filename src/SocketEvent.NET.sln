@@ -9,8 +9,11 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 	ProjectSection(SolutionItems) = preProject
 		Local.testsettings = Local.testsettings
 		SocketEvent.NET.vsmdi = SocketEvent.NET.vsmdi
+		..\..\socketio4net.bak\SocketIO\SocketIOClient.csproj = ..\..\socketio4net.bak\SocketIO\SocketIOClient.csproj
 		TraceAndTestImpact.testsettings = TraceAndTestImpact.testsettings
 	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SocketIOClient", "SocketIO\SocketIOClient.csproj", "{352C9BC1-F74C-4741-A09D-7227BC60C057}"
 EndProject
 Global
 	GlobalSection(TestCaseManagementSettings) = postSolution
@@ -18,17 +21,35 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
+		DebugILMerge|Any CPU = DebugILMerge|Any CPU
 		Release|Any CPU = Release|Any CPU
+		ReleaseILMerge|Any CPU = ReleaseILMerge|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{0FB9A193-CF7B-4F8C-96F9-6D3295E01F6B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{0FB9A193-CF7B-4F8C-96F9-6D3295E01F6B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0FB9A193-CF7B-4F8C-96F9-6D3295E01F6B}.DebugILMerge|Any CPU.ActiveCfg = Debug|Any CPU
+		{0FB9A193-CF7B-4F8C-96F9-6D3295E01F6B}.DebugILMerge|Any CPU.Build.0 = Debug|Any CPU
 		{0FB9A193-CF7B-4F8C-96F9-6D3295E01F6B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0FB9A193-CF7B-4F8C-96F9-6D3295E01F6B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0FB9A193-CF7B-4F8C-96F9-6D3295E01F6B}.ReleaseILMerge|Any CPU.ActiveCfg = Release|Any CPU
+		{0FB9A193-CF7B-4F8C-96F9-6D3295E01F6B}.ReleaseILMerge|Any CPU.Build.0 = Release|Any CPU
 		{57E7D2D1-D789-4CE6-BA53-7CDCF9D24BBD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{57E7D2D1-D789-4CE6-BA53-7CDCF9D24BBD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{57E7D2D1-D789-4CE6-BA53-7CDCF9D24BBD}.DebugILMerge|Any CPU.ActiveCfg = Debug|Any CPU
+		{57E7D2D1-D789-4CE6-BA53-7CDCF9D24BBD}.DebugILMerge|Any CPU.Build.0 = Debug|Any CPU
 		{57E7D2D1-D789-4CE6-BA53-7CDCF9D24BBD}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{57E7D2D1-D789-4CE6-BA53-7CDCF9D24BBD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{57E7D2D1-D789-4CE6-BA53-7CDCF9D24BBD}.ReleaseILMerge|Any CPU.ActiveCfg = Release|Any CPU
+		{57E7D2D1-D789-4CE6-BA53-7CDCF9D24BBD}.ReleaseILMerge|Any CPU.Build.0 = Release|Any CPU
+		{352C9BC1-F74C-4741-A09D-7227BC60C057}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{352C9BC1-F74C-4741-A09D-7227BC60C057}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{352C9BC1-F74C-4741-A09D-7227BC60C057}.DebugILMerge|Any CPU.ActiveCfg = DebugILMerge|Any CPU
+		{352C9BC1-F74C-4741-A09D-7227BC60C057}.DebugILMerge|Any CPU.Build.0 = DebugILMerge|Any CPU
+		{352C9BC1-F74C-4741-A09D-7227BC60C057}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{352C9BC1-F74C-4741-A09D-7227BC60C057}.Release|Any CPU.Build.0 = Release|Any CPU
+		{352C9BC1-F74C-4741-A09D-7227BC60C057}.ReleaseILMerge|Any CPU.ActiveCfg = ReleaseILMerge|Any CPU
+		{352C9BC1-F74C-4741-A09D-7227BC60C057}.ReleaseILMerge|Any CPU.Build.0 = ReleaseILMerge|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
