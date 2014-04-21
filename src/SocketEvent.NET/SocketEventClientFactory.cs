@@ -44,11 +44,22 @@ namespace SocketEvent
         /// <summary>
         /// Connect to a socket event URL
         /// </summary>
-        /// <param name="url">Target SocketIO URL</param>
+        /// <param name="url">Server URL</param>
         /// <returns>SocketEventClient</returns>
         public static ISocketEventClient CreateInstance(string url)
         {
             return new SocketEventClient(url);
+        }
+
+        /// <summary>
+        /// Connect to a socket event URL. Name the client with provided ID.
+        /// </summary>
+        /// <param name="id">ID of this client</param>
+        /// <param name="url">Server URL</param>
+        /// <returns>SocketEventClient</returns>
+        public static ISocketEventClient CreateInstance(string id, string url)
+        {
+            return new SocketEventClient(id, url);
         }
     }
 }

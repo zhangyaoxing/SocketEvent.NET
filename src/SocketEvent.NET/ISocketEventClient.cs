@@ -10,7 +10,7 @@ namespace SocketEvent
         /// <summary>
         /// Get unique ID of this client.
         /// </summary>
-        string ClientId { get; set; }
+        string ClientId { get; }
 
         /// <summary>
         /// State of the client.
