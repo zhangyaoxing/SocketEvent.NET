@@ -85,8 +85,7 @@ namespace SocketEventTest
         public void SubscribeTest()
         {
             ISocketEventClient client;
-            client = SocketEventClientFactory.CreateInstance(URL);
-            client.ClientId = "SubscriberID";
+            client = SocketEventClientFactory.CreateInstance("SubscriberID", URL);
             string eventName = "TestEvent";
             ISocketEventResponse serverResponse = null;
             ISocketEventRequest serverRequest = null;
