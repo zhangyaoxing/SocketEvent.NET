@@ -13,6 +13,11 @@ namespace SocketEvent
         string ClientId { get; }
 
         /// <summary>
+        /// SocketEvent URL
+        /// </summary>
+        string Url { get; }
+
+        /// <summary>
         /// State of the client.
         /// </summary>
         ClientState State { get; }

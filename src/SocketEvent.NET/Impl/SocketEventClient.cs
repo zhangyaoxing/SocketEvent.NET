@@ -29,18 +29,33 @@ namespace SocketEvent.Impl
         {
             this.ClientId = id;
             this.State = ClientState.Disconnected;
-            this.socket = new Client(url);
-            this.socket.Connect();
-            this.State = ClientState.Connected;
+            this.Url = url;
         }
 
         public string ClientId { get; set; }
 
         public ClientState State { get; set; }
 
+        public string Url { get; set; }
+
+        private Client Socket
+        {
+            get
+            {
+                if (this.socket == null)
+                {
+                    this.socket = new Client(this.Url);
+                    this.socket.Connect();
+                    this.State = ClientState.Connected;
+                }
+
+                return this.socket;
+            }
+        }
+
         public void Subscribe(string eventName, Func<ISocketEventRequest, RequestResult> eventCallback, Action<ISocketEventResponse> subscribeReadyCallback = null)
         {
-            this.socket.On(eventName, (msg) =>
+            this.Socket.On(eventName, (msg) =>
             {
                 var dto = JsonConvert.DeserializeObject<SocketEventRequestDto>(msg.Json.Args[0].ToString());
                 var request = Mapper.Map<SocketEventRequestDto, SocketEventRequest>(dto);
@@ -58,14 +73,14 @@ namespace SocketEvent.Impl
                     AckId = msg.AckId,
                     MessageText = msgText
                 };
-                this.socket.Send(ack);
+                this.Socket.Send(ack);
             });
             var subscribeDto = new SubscribeDto()
             {
                 Event = eventName,
                 SenderId = this.ClientId
             };
-            this.socket.Emit(SUBSCRIBE, subscribeDto, string.Empty, (data) =>
+            this.Socket.Emit(SUBSCRIBE, subscribeDto, string.Empty, (data) =>
             {
                 var json = data as JsonEncodedEventMessage;
                 var result = JsonConvert.DeserializeObject<SocketEventResponseDto>(json.Args[0]);
@@ -94,7 +109,7 @@ namespace SocketEvent.Impl
                 Args = args
             };
 
-            this.socket.Emit(ENQUEUE, dto, string.Empty, (data) =>
+            this.Socket.Emit(ENQUEUE, dto, string.Empty, (data) =>
                 {
                     var json = data as JsonEncodedEventMessage;
                     var result = JsonConvert.DeserializeObject<SocketEventResponseDto>(json.Args[0]);
