@@ -129,5 +129,11 @@ namespace SocketEventTest
             Assert.AreEqual(RequestResult.Success, response.Status);
             Assert.AreEqual(ClientState.Connected, client.State);
         }
+
+        [TestMethod()]
+        public void StateChangeTest()
+        {
+
+        }
     }
 }

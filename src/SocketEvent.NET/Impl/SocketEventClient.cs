@@ -18,6 +18,14 @@ namespace SocketEvent.Impl
 
         public const string ENQUEUE = "enqueue";
 
+        public event EventHandler<StateChangedEventArgs> StateChanged;
+
+        public event EventHandler Disconnected;
+
+        public event EventHandler Retried;
+
+        public event EventHandler Connected;
+
         private Client socket;
 
         public SocketEventClient(string url)
@@ -46,6 +54,8 @@ namespace SocketEvent.Impl
                 {
                     this.socket = new Client(this.Url);
                     this.socket.Connect();
+                    this.socket.SocketConnectionClosed += new EventHandler(SocketConnectionClosed);
+                    this.socket.ConnectionRetryAttempt += new EventHandler(ConnectionRetryAttempt);
                     this.State = ClientState.Connected;
                 }
 
@@ -55,6 +65,7 @@ namespace SocketEvent.Impl
 
         public void Subscribe(string eventName, Func<ISocketEventRequest, RequestResult> eventCallback, Action<ISocketEventResponse> subscribeReadyCallback = null)
         {
+            // TODO: remember these parameters for then use for auto-reconnecting.
             this.Socket.On(eventName, (msg) =>
             {
                 var dto = JsonConvert.DeserializeObject<SocketEventRequestDto>(msg.Json.Args[0].ToString());
@@ -127,9 +138,50 @@ namespace SocketEvent.Impl
             this.Enqueue(eventName, 0, 60, null, callback);
         }
 
-        private void ChangeState()
+        private void SocketConnectionClosed(object sender, EventArgs e)
         {
-            // TODO: OnStateChange event.
+            this.ChangeState(ClientState.Disconnected);
+        }
+
+        private void ConnectionRetryAttempt(object sender, EventArgs e)
+        {
+            this.ChangeState(ClientState.Reconnecting);
+        }
+
+        protected void ChangeState(ClientState state)
+        {
+            var originalState = this.State;
+            this.State = state;
+            this.OnStateChanged(originalState, state);
+        }
+
+        protected void OnStateChanged(ClientState from, ClientState to)
+        {
+            if (this.StateChanged != null)
+            {
+                this.StateChanged(this, new StateChangedEventArgs(from, to));
+            }
+            switch (to)
+            {
+                case ClientState.Connected:
+                    if (this.Connected != null)
+                    {
+                        this.Connected(this, new EventArgs());
+                    }
+                    break;
+                case ClientState.Disconnected:
+                    if (this.Disconnected != null)
+                    {
+                        this.Disconnected(this, new EventArgs());
+                    }
+                    break;
+                case ClientState.Reconnecting:
+                    if (this.Retried != null)
+                    {
+                        this.Retried(this, new EventArgs());
+                    }
+                    break;
+            }
         }
     }
 }

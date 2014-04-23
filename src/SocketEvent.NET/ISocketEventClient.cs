@@ -7,6 +7,15 @@ namespace SocketEvent
 {
     public interface ISocketEventClient
     {
+
+        event EventHandler<StateChangedEventArgs> StateChanged;
+
+        event EventHandler Disconnected;
+
+        event EventHandler Retried;
+
+        event EventHandler Connected;
+
         /// <summary>
         /// Get unique ID of this client.
         /// </summary>
