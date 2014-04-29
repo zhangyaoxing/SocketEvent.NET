@@ -7,6 +7,7 @@ using SocketEvent.Dto;
 using Newtonsoft.Json;
 using SocketIOClient.Messages;
 using AutoMapper;
+using System.Collections.Concurrent;
 
 namespace SocketEvent.Impl
 {
@@ -18,13 +19,7 @@ namespace SocketEvent.Impl
 
         public const string ENQUEUE = "enqueue";
 
-        public event EventHandler<StateChangedEventArgs> StateChanged;
-
-        public event EventHandler Disconnected;
-
-        public event EventHandler Retried;
-
-        public event EventHandler Connected;
+        protected ConcurrentDictionary<string, dynamic> eventStore;
 
         private Client socket;
 
@@ -36,8 +31,8 @@ namespace SocketEvent.Impl
         public SocketEventClient(string id, string url)
         {
             this.ClientId = id;
-            this.State = ClientState.Disconnected;
             this.Url = url;
+            this.eventStore = new ConcurrentDictionary<string, dynamic>();
         }
 
         public string ClientId { get; set; }
@@ -52,11 +47,7 @@ namespace SocketEvent.Impl
             {
                 if (this.socket == null)
                 {
-                    this.socket = new Client(this.Url);
-                    this.socket.Connect();
-                    this.socket.SocketConnectionClosed += new EventHandler(SocketConnectionClosed);
-                    this.socket.ConnectionRetryAttempt += new EventHandler(ConnectionRetryAttempt);
-                    this.State = ClientState.Connected;
+                    this.InitSocket();
                 }
 
                 return this.socket;
@@ -65,7 +56,51 @@ namespace SocketEvent.Impl
 
         public void Subscribe(string eventName, Func<ISocketEventRequest, RequestResult> eventCallback, Action<ISocketEventResponse> subscribeReadyCallback = null)
         {
-            // TODO: remember these parameters for then use for auto-reconnecting.
+            this.eventStore[eventName] = new
+            {
+                eventCallback = eventCallback,
+                subscribeReadyCallback = subscribeReadyCallback
+            };
+
+            this.DoSubscribe(eventName, eventCallback, subscribeReadyCallback);
+        }
+
+        public void Unsubscribe(string eventName, Action<ISocketEventResponse> callback)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void Enqueue(string eventName, int tryTimes = 1, int timeout = 60, dynamic args = null, Action<ISocketEventResponse> callback = null)
+        {
+            var dto = new EnqueueDto()
+            {
+                Event = eventName,
+                SenderId = this.ClientId,
+                TryTimes = tryTimes == 0 ? 1 : tryTimes,
+                Timeout = timeout,
+                Args = args
+            };
+
+            this.Socket.Emit(ENQUEUE, dto, string.Empty, (data) =>
+                {
+                    var json = data as JsonEncodedEventMessage;
+                    var result = JsonConvert.DeserializeObject<SocketEventResponseDto>(json.Args[0]);
+                    var response = Mapper.Map<SocketEventResponseDto, SocketEventResponse>(result);
+
+                    if (callback != null)
+                    {
+                        callback(response);
+                    }
+                });
+        }
+
+        public void Enqueue(string eventName, Action<ISocketEventResponse> callback)
+        {
+            this.Enqueue(eventName, 0, 60, null, callback);
+        }
+
+        protected void DoSubscribe(string eventName, Func<ISocketEventRequest, RequestResult> eventCallback, Action<ISocketEventResponse> subscribeReadyCallback)
+        {
             this.Socket.On(eventName, (msg) =>
             {
                 var dto = JsonConvert.DeserializeObject<SocketEventRequestDto>(msg.Json.Args[0].ToString());
@@ -104,84 +139,23 @@ namespace SocketEvent.Impl
             });
         }
 
-        public void Unsubscribe(string eventName, Action<ISocketEventResponse> callback)
+        private void RedoSubscription()
         {
-            throw new NotImplementedException();
+            foreach (var entry in this.eventStore)
+            {
+                this.DoSubscribe(entry.Key, entry.Value.eventCallback, entry.Value.subscribeReadyCallback);
+            }
         }
 
-        public void Enqueue(string eventName, int tryTimes = 1, int timeout = 60, dynamic args = null, Action<ISocketEventResponse> callback = null)
+        private void InitSocket()
         {
-            var dto = new EnqueueDto()
-            {
-                Event = eventName,
-                SenderId = this.ClientId,
-                TryTimes = tryTimes == 0 ? 1 : tryTimes,
-                Timeout = timeout,
-                Args = args
-            };
-
-            this.Socket.Emit(ENQUEUE, dto, string.Empty, (data) =>
+            this.socket = new Client(this.Url);
+            this.socket.RetryConnectionAttempts = int.MaxValue;
+            this.socket.ConnectionRetryAttempt += new EventHandler((sender, args) =>
                 {
-                    var json = data as JsonEncodedEventMessage;
-                    var result = JsonConvert.DeserializeObject<SocketEventResponseDto>(json.Args[0]);
-                    var response = Mapper.Map<SocketEventResponseDto, SocketEventResponse>(result);
-
-                    if (callback != null)
-                    {
-                        callback(response);
-                    }
+                    this.RedoSubscription();
                 });
-        }
-
-        public void Enqueue(string eventName, Action<ISocketEventResponse> callback)
-        {
-            this.Enqueue(eventName, 0, 60, null, callback);
-        }
-
-        private void SocketConnectionClosed(object sender, EventArgs e)
-        {
-            this.ChangeState(ClientState.Disconnected);
-        }
-
-        private void ConnectionRetryAttempt(object sender, EventArgs e)
-        {
-            this.ChangeState(ClientState.Reconnecting);
-        }
-
-        protected void ChangeState(ClientState state)
-        {
-            var originalState = this.State;
-            this.State = state;
-            this.OnStateChanged(originalState, state);
-        }
-
-        protected void OnStateChanged(ClientState from, ClientState to)
-        {
-            if (this.StateChanged != null)
-            {
-                this.StateChanged(this, new StateChangedEventArgs(from, to));
-            }
-            switch (to)
-            {
-                case ClientState.Connected:
-                    if (this.Connected != null)
-                    {
-                        this.Connected(this, new EventArgs());
-                    }
-                    break;
-                case ClientState.Disconnected:
-                    if (this.Disconnected != null)
-                    {
-                        this.Disconnected(this, new EventArgs());
-                    }
-                    break;
-                case ClientState.Reconnecting:
-                    if (this.Retried != null)
-                    {
-                        this.Retried(this, new EventArgs());
-                    }
-                    break;
-            }
+            this.socket.Connect();
         }
     }
 }

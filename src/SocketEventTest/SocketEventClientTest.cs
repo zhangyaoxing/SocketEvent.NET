@@ -85,7 +85,7 @@ namespace SocketEventTest
         public void SubscribeTest()
         {
             ISocketEventClient client;
-            client = SocketEventClientFactory.CreateInstance("SubscriberID", URL);
+            client = SocketEventClientFactory.CreateInstance("MerchantServiceClient", URL);
             string eventName = "TestEvent";
             ISocketEventResponse serverResponse = null;
             ISocketEventRequest serverRequest = null;
@@ -105,7 +105,6 @@ namespace SocketEventTest
             s.WaitOne();
 
             Assert.AreEqual(RequestResult.Success, serverResponse.Status);
-            Assert.AreEqual(ClientState.Connected, client.State);
             Assert.AreEqual(eventName, serverRequest.EventName);
             Assert.IsNotNull(serverRequest.RequestId);
         }
@@ -127,7 +126,6 @@ namespace SocketEventTest
             s.WaitOne(3000);
 
             Assert.AreEqual(RequestResult.Success, response.Status);
-            Assert.AreEqual(ClientState.Connected, client.State);
         }
 
         [TestMethod()]

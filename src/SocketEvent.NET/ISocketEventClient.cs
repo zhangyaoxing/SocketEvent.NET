@@ -7,15 +7,6 @@ namespace SocketEvent
 {
     public interface ISocketEventClient
     {
-
-        event EventHandler<StateChangedEventArgs> StateChanged;
-
-        event EventHandler Disconnected;
-
-        event EventHandler Retried;
-
-        event EventHandler Connected;
-
         /// <summary>
         /// Get unique ID of this client.
         /// </summary>
@@ -25,11 +16,6 @@ namespace SocketEvent
         /// SocketEvent URL
         /// </summary>
         string Url { get; }
-
-        /// <summary>
-        /// State of the client.
-        /// </summary>
-        ClientState State { get; }
 
         /// <summary>
         /// Subscribe a event by its event name.

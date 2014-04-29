@@ -7,8 +7,12 @@ namespace SocketEvent
 {
     public enum ClientState
     {
+        Connecting,
         Connected,
+        ConnectFailed,
         Reconnecting,
-        Disconnected
+        Reconnect,
+        ReconnectFailed,
+        Disconnect
     }
 }
