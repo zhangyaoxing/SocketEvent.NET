@@ -58,6 +58,10 @@ namespace SocketIOClient
 		/// <para>Call the client.Connect() method to re-establish the connection</para>
 		/// </summary>
 		public event EventHandler SocketConnectionClosed;
+        /// <summary>
+        /// Happens when reconnected.
+        /// </summary>
+        public event EventHandler ConnectionReconnect;
 		public event EventHandler<ErrorEventArgs> Error;
 
 		/// <summary>
@@ -195,32 +199,34 @@ namespace SocketIOClient
 
 		protected void ReConnect()
 		{
-			this.retryConnectionCount++;
+            bool connected = false;
 
-			this.OnConnectionRetryAttemptEvent(this, EventArgs.Empty);
+            while (!connected && this.retryConnectionCount < this.RetryConnectionAttempts)
+            {
+                this.retryConnectionCount++;
 
-			this.closeHeartBeatTimer(); // stop the heartbeat time
-			this.closeWebSocketClient();// stop websocket
-			this.HandShake.ResetConnection();
+                this.OnConnectionRetryAttemptEvent(this, EventArgs.Empty);
 
-			this.Connect();
+                this.closeHeartBeatTimer(); // stop the heartbeat time
+                this.closeWebSocketClient();// stop websocket
+                this.HandShake.ResetConnection();
 
-			bool connected = this.ConnectionOpenEvent.WaitOne(4000); // block while waiting for connection
-			Trace.WriteLine(string.Format("\tRetry-Connection successful: {0}", connected));
-			if (connected)
-				this.retryConnectionCount = 0;
-			else
-			{	// we didn't connect - try again until exhausted
-				if (this.retryConnectionCount < this.RetryConnectionAttempts)
-				{
-					this.ReConnect();
-				}
-				else
-				{
-					this.Close();
-					this.OnSocketConnectionClosedEvent(this, EventArgs.Empty);
-				}
-			}
+                this.Connect();
+
+                connected = this.ConnectionOpenEvent.WaitOne(4000); // block while waiting for connection
+                Trace.WriteLine(string.Format("\tRetry-Connection successful: {0}", connected));
+            }
+
+            if (connected)
+            {
+                this.OnConnectionReconnectEvent(this, EventArgs.Empty);
+                this.retryConnectionCount = 0;
+            }
+            else
+            {
+                this.Close();
+                this.OnSocketConnectionClosedEvent(this, EventArgs.Empty);
+            }
 		}
 		
 		/// <summary>
@@ -513,6 +519,17 @@ namespace SocketIOClient
 			}
 			Trace.WriteLine(string.Format("Attempting to reconnect: {0}", this.retryConnectionCount));
 		}
+        protected void OnConnectionReconnectEvent(object sender, EventArgs e)
+        {
+            if (this.ConnectionReconnect != null)
+            {
+                try
+                {
+                    this.ConnectionReconnect(sender, e);
+                }
+                catch { }
+            }
+        }
 
 		// Housekeeping
 		protected void OnHeartBeatTimerCallback(object state)

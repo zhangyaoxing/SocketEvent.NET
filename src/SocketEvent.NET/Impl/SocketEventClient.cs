@@ -11,7 +11,7 @@ using System.Collections.Concurrent;
 
 namespace SocketEvent.Impl
 {
-    class SocketEventClient : ISocketEventClient
+    class SocketEventClient : ISocketEventClient, IDisposable
     {
         public const string SUBSCRIBE = "subscribe";
 
@@ -151,11 +151,16 @@ namespace SocketEvent.Impl
         {
             this.socket = new Client(this.Url);
             this.socket.RetryConnectionAttempts = int.MaxValue;
-            this.socket.ConnectionRetryAttempt += new EventHandler((sender, args) =>
+            this.socket.ConnectionReconnect += new EventHandler((sender, args) =>
                 {
                     this.RedoSubscription();
                 });
             this.socket.Connect();
+        }
+
+        public void Dispose()
+        {
+            this.socket.Dispose();
         }
     }
 }
