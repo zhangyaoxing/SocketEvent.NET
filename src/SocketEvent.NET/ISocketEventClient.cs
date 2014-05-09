@@ -5,7 +5,7 @@ using System.Text;
 
 namespace SocketEvent
 {
-    public interface ISocketEventClient
+    public interface ISocketEventClient : IDisposable
     {
         /// <summary>
         /// Get unique ID of this client.

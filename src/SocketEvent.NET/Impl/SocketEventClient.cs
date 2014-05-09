@@ -8,10 +8,11 @@ using Newtonsoft.Json;
 using SocketIOClient.Messages;
 using AutoMapper;
 using System.Collections.Concurrent;
+using System.Threading;
 
 namespace SocketEvent.Impl
 {
-    class SocketEventClient : ISocketEventClient, IDisposable
+    class SocketEventClient : ISocketEventClient
     {
         public const string SUBSCRIBE = "subscribe";
 
@@ -99,6 +100,16 @@ namespace SocketEvent.Impl
             this.Enqueue(eventName, 0, 60, null, callback);
         }
 
+        public void Dispose()
+        {
+            // TODO: Wait for tasks to finish before destroy
+            Thread.Sleep(2000);
+            if (this.socket != null)
+            {
+                this.socket.Dispose();
+            }
+        }
+
         protected void DoSubscribe(string eventName, Func<ISocketEventRequest, RequestResult> eventCallback, Action<ISocketEventResponse> subscribeReadyCallback)
         {
             this.Socket.On(eventName, (msg) =>
@@ -156,11 +167,6 @@ namespace SocketEvent.Impl
                     this.RedoSubscription();
                 });
             this.socket.Connect();
-        }
-
-        public void Dispose()
-        {
-            this.socket.Dispose();
         }
     }
 }
