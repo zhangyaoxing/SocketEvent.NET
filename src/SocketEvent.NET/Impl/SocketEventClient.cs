@@ -24,6 +24,8 @@ namespace SocketEvent.Impl
 
         private Client socket;
 
+        private Semaphore locker;
+
         public SocketEventClient(string url)
             : this(Guid.NewGuid().ToString(), url)
         {
@@ -34,6 +36,7 @@ namespace SocketEvent.Impl
             this.ClientId = id;
             this.Url = url;
             this.eventStore = new ConcurrentDictionary<string, dynamic>();
+            this.locker = new Semaphore(1, 1);
         }
 
         public string ClientId { get; set; }
@@ -73,6 +76,7 @@ namespace SocketEvent.Impl
 
         public void Enqueue(string eventName, int tryTimes = 1, int timeout = 60, dynamic args = null, Action<ISocketEventResponse> callback = null)
         {
+            this.locker.WaitOne();
             var dto = new EnqueueDto()
             {
                 Event = eventName,
@@ -92,6 +96,7 @@ namespace SocketEvent.Impl
                     {
                         callback(response);
                     }
+                    this.locker.Release();
                 });
         }
 
@@ -102,12 +107,13 @@ namespace SocketEvent.Impl
 
         public void Dispose()
         {
-            // TODO: Wait for tasks to finish before destroy
-            Thread.Sleep(2000);
+            // enqueue should have been finished within 60s.
+            this.locker.WaitOne(600000);
             if (this.socket != null)
             {
                 this.socket.Dispose();
             }
+            this.locker.Dispose();
         }
 
         protected void DoSubscribe(string eventName, Func<ISocketEventRequest, RequestResult> eventCallback, Action<ISocketEventResponse> subscribeReadyCallback)
